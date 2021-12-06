@@ -1,0 +1,32 @@
+!pip install pandas
+!pip install xlsxwriter
+!pip install xlrd
+!pip install openpyxl
+!pip install easyocr
+!pip install torch torchvision torchaudio
+import pandas as pd
+import easyocr
+from matplotlib import pyplot as plt
+import numpy as np
+IMAGE_PATH = 'WhatsApp Image 2021-12-06 at 7.33.04 AM.jpeg'
+reader = easyocr.Reader(['en'],gpu=False)
+results = reader.readtext(IMAGE_PATH)
+fields = ['ADDRESS','Patient Name','Doctor Name','Patient Age','Expiry Date','Glass Description']
+field = []
+value = []
+flag = []
+for result in results:
+    pairs=result[1].split(":")  
+    if(pairs[0] in fields and len(pairs)>1):
+          field.append(pairs[0])
+          value.append(pairs[1])
+          if(result[2]>0.50):
+              flag.append('NO')
+          else:
+              flag.append('YES')
+          
+df = pd.DataFrame({'Field': field,'Value': value, 'Flag': flag})
+writer = pd.ExcelWriter('Eye Prescription.xlsx', engine='xlsxwriter')
+df.to_excel(writer, sheet_name='Eye Prescription', index=False)
+writer.save()
+results
